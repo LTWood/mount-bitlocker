@@ -1,0 +1,71 @@
+#!/usr/bin/bash
+
+function decrypt_drive {
+	dislocker $label -u$password -- /media/bitlocker
+}
+
+function mount_drive {
+	mount -o loop /media/bitlocker/dislocker-file $dir
+}
+
+if [ "$EUID" -ne 0 ]; then
+	echo "You must be root to run this!"
+	exit
+fi
+
+read -e -p "Enter directory to mount the drive (if it doesn't exist, it will be created. If blank, /media/bitlockermount will be used/created): " dir
+read -p "Enter device label (e.g. /dev/sda1): " label
+read -s -p "Enter password: " password
+
+if [ -z $dir ]; then
+	dir="/media/bitlockermount"
+	if [ -d "/media/bitlocker" ]; then
+		echo "Decrypting drive"
+		decrypt_drive
+		echo "Drive decrypted"
+	else
+		echo "Creating /media/bitlocker"
+		mkdir /media/bitlocker
+		echo "Decrypting drive"
+		decrypt_drive
+		echo "Drive decrypted"
+	fi
+
+	if [ -d "/media/bitlockermount" ]; then
+		echo "Mounting drive"
+		mount_drive
+		echo "Drive mounted"
+	else
+		echo "Creating /media/bitlockermount"
+		mkdir /media/bitlockermount
+		echo "Mounting drive"
+		mount_drive
+		echo "Drive mounted"
+	fi
+else
+	if [ -d "/media/bitlocker" ]; then
+		echo "Decrypting drive"
+		decrypt_drive
+		echo "Drive decrypted"
+	else
+		echo "Creating /media/bitlocker"
+		mkdir /media/bitlocker
+		echo "Decrypting drive"
+		decrypt_drive
+		echo "Drive decrypted"
+	fi
+
+	if [ -d "$dir" ]; then
+		echo "Mounting drive"
+		mount_drive
+		echo "Drive mounted"
+	else
+		echo "Creating $dir"
+		mkdir $dir
+		echo "Mounting drive"
+		mount_drive
+		echo "Drive mounted"
+	fi
+fi
+
+echo "Your files can be found at $dir"

@@ -1,2 +1,5 @@
 # mount-bitlocker
-Script to auomactially decrypt and mount a bitlocker drive using Dislocker
+
+## Requires Dislocker
+
+Script to automactially decrypt and mount a bitlocker drive using Dislocker
